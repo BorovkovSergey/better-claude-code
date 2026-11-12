@@ -29,7 +29,8 @@ const pendingDelete = atom({ plugin: 'note', key: 'pendingDelete' } as const, ''
 const TOOL_RULE =
   "The user's per-session markdown notebook, shown in their Notes pane beside the chat. " +
   'Call ONLY when the user explicitly asks to read or change their notes ' +
-  '("добавь в заметки", "занеси в заметки", "отметь пункт 2", "что у меня в заметках"). ' +
+  '("add this to my notes", "put the checklist in my notes", "tick item 2", "what is in my notes", ' +
+  '"добавь в заметки", "отметь пункт 2"). ' +
   'Never call it on your own initiative, and never to store your own plans or progress.'
 
 async function notesDir($: EngineInterface): Promise<string> {
@@ -172,7 +173,7 @@ function titleOf(text: string): string {
     .split('\n')
     .map(one => one.trim())
     .find(one => one !== '')
-  const title = (line ?? '(пусто)').replace(/^#+\s*/, '')
+  const title = (line ?? '(empty)').replace(/^#+\s*/, '')
 
   return title.length > 60 ? `${title.slice(0, 59)}…` : title
 }
@@ -208,14 +209,14 @@ async function importNotebook($: EngineInterface, id: string): Promise<void> {
   }
   const source = (await readFile($, `${await notesDir($)}/${id}.md`)).trim()
   if (source === '') {
-    $.ui.toast('Этот блокнот пустой')
+    $.ui.toast('This notebook is empty')
 
     return
   }
   const { path } = await currentFile($)
   const current = (await readFile($, path)).replace(/\s+$/, '')
   await save($, current === '' ? `${source}\n` : `${current}\n\n${source}\n`)
-  $.ui.toast('Импортировано в текущий блокнот')
+  $.ui.toast('Imported into the current notebook')
 }
 
 async function deleteNotebook($: EngineInterface, id: string): Promise<void> {
@@ -230,7 +231,7 @@ async function deleteNotebook($: EngineInterface, id: string): Promise<void> {
   const path = `${await notesDir($)}/${id}.md`
   const { exitCode, stderr } = await $.process.run(['rm', '-f', '--', path])
   if (exitCode !== 0) {
-    $.ui.toast(`Не удалось удалить: ${stderr.trim()}`)
+    $.ui.toast(`Could not delete: ${stderr.trim()}`)
   }
   await loadEntries($)
   await refresh($)
@@ -310,15 +311,15 @@ export const register: Register = on => {
       await loadEntries($)
       await $.ui.open({ id: LIST, title: 'Notebooks', focus: true, closeOnEscape: true })
 
-      return { text: 'Список блокнотов открыт (Esc — закрыть).' }
+      return { text: 'Notebook list opened (Esc to close).' }
     }
     if (args !== '') {
-      return { text: 'Использование: /note — открыть/скрыть панель, /note list — блокноты сессий.' }
+      return { text: 'Usage: /note shows or hides the pane, /note list lists the notebooks of all sessions.' }
     }
     const isOpen = await togglePane($)
     const { path } = await currentFile($)
 
-    return { text: isOpen ? `Notes открыт: ${path}` : 'Notes скрыт.' }
+    return { text: isOpen ? `Notes shown: ${path}` : 'Notes hidden.' }
   })
 
   on('tool.call', { tool: 'mcp__note__read' }, async $ => {
@@ -385,8 +386,8 @@ export const register: Register = on => {
     if (current.text.trim() === '') {
       return (
         <Box flexDirection="column">
-          <Text dimColor>Блокнот пуст.</Text>
-          <Text dimColor>Попроси Claude: «добавь в заметки …» или «занеси чеклист в заметки».</Text>
+          <Text dimColor>The notebook is empty.</Text>
+          <Text dimColor>Ask Claude: "add … to my notes" or "put the checklist in my notes".</Text>
         </Box>
       )
     }
@@ -432,7 +433,7 @@ export const register: Register = on => {
     const pending = await read($, pendingDelete)
 
     if (list.length === 0) {
-      return <Text dimColor>Блокнотов пока нет.</Text>
+      return <Text dimColor>No notebooks yet.</Text>
     }
 
     return (
@@ -446,20 +447,20 @@ export const register: Register = on => {
             <Text dimColor>
               {'  '}
               {stamp(entry.mtimeMs)} · {entry.size} B · {entry.id.slice(0, 8)}
-              {entry.isCurrent ? ' · текущий' : ''}
+              {entry.isCurrent ? ' · current' : ''}
             </Text>
             <Box>
               <Text>{'  '}</Text>
               {!entry.isCurrent && (
                 <Button
                   key={`import-${entry.id}`}
-                  label="Импорт"
+                  label="Import"
                   onPress={() => void importNotebook($, entry.id)}
                 />
               )}
               <Button
                 key={`delete-${entry.id}`}
-                label={pending === entry.id ? 'Точно удалить?' : 'Удалить'}
+                label={pending === entry.id ? 'Really delete?' : 'Delete'}
                 onPress={() => void deleteNotebook($, entry.id)}
               />
             </Box>

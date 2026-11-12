@@ -47,5 +47,3 @@ claude --plugin-dir plugins/note   # run from a working copy
 claude plugin validate plugins/note
 claude plugin test plugins/note
 ```
-
-The UI strings are in Russian.

@@ -1,6 +1,6 @@
 {
   "name": "note",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Per-session markdown notebook in a pane beside the chat; Claude edits it only on explicit request",
   "types": "./types/index.d.ts"
 }

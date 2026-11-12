@@ -34,7 +34,7 @@ Per-session markdown notebook in a pane beside the chat.
 - Clickable task boxes: `- [ ]` / `- [x]` are rewritten to `[☐](https://note.invalid/toggle/<line>)` links and caught by `Markdown`'s `onLinkPress` (fullscreen terminal only). Lines inside code fences are skipped.
 - Deleting a notebook uses `$.process.run(['rm', ...])` because `$.fs` has no delete.
 - User decisions (keep unless asked): one notebook per session, not per project; no automatic cleanup of old notebooks, deletion only by hand in `/note list`; the button shows only when the notebook is not empty; notebook content is full markdown, not a fixed checklist format.
-- UI strings are Russian.
+- UI strings are English; the tool descriptions also carry Russian example phrases so Russian requests match.
 
 ## Known issues / open items
 

@@ -1,0 +1,12 @@
+{
+  "name": "better-claude-code",
+  "description": "Claude Code mods by BorovkovSergey",
+  "owner": { "name": "BorovkovSergey" },
+  "plugins": [
+    {
+      "name": "note",
+      "source": "./plugins/note",
+      "description": "Per-session markdown notebook in a pane beside the chat; Claude edits it only on explicit request"
+    }
+  ]
+}
